@@ -6,7 +6,7 @@ import time
 from time import sleep
 
 
-db = mysql.connector.connect(host="localhost",user="root",passwd="mojmobjekul",db="iotweatherstation")
+db = mysql.connector.connect(host="localhost",user="root",passwd="",db="iotweatherstation")
 cursor = db.cursor()
 
 if __name__ == '__main__':
@@ -33,13 +33,13 @@ if __name__ == '__main__':
             #print(line1)
             str_int1 = str(line1)
             t1,h1 = str_int1[:2],str_int1[2:]
-            print(t1)
-            print(h1)
+            print("Arduino: T:" +t1+ " H:"+ h1)
             #Splitanja readlinea sa Raspberry Pi-ja
             line2 = ser.readline().decode('utf-8').rstrip()
             str_int2 = str(line2)
             t2,h2 = str_int2[:2],str_int2[2:]
             print("RPI: T:" +t2+ " H:"+ h2)
+            print("\n")
             display.lcd_display_string('Arduino:', 1)
             display.lcd_display_string('T:'+ t1 + ' H:' + h1 , 2)
             sleep(5)
