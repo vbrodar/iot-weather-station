@@ -12,7 +12,7 @@ const uint64_t pipeOut = 0xE8E8F0F0E1LL;
 #define interruptPin 2 //Pin we are going to use to wake up the Arduino
 
 const int time_interval=1;// Sets the wakeup interval in minutes
-
+int sum_time;
 DS3231  rtc(SDA, SCL);
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -39,12 +39,12 @@ void setup()
   //Adding rtc functionality
 
   rtc.setDOW(FRIDAY);     // Set Day-of-Week to SUNDAY
-  rtc.setTime(11, 59, 0);     // Set the time to 12:00:00 (24hr format)
+  rtc.setTime(14, 55, 0);     // Set the time to 12:00:00 (24hr format)
   rtc.setDate(8, 6, 2021);   // Set the date to January 1st, 2014
 
   //initialize the alarms to known values, clear alarm flags, clear the alarm interrupt flags
-  RTC.setAlarm(ALM1_MATCH_DATE, 0, 0, 0, 1);
-  RTC.setAlarm(ALM2_MATCH_DATE, 0, 0, 0, 1);
+  RTC.setAlarm(ALM1_MATCH_DATE, 0, 0, 1, 0);
+  RTC.setAlarm(ALM2_MATCH_DATE, 0, 0, 1, 0);
   RTC.alarm(ALARM_1);
   RTC.alarm(ALARM_2);
   RTC.alarmInterrupt(ALARM_1, false);
@@ -67,7 +67,7 @@ void setup()
      Block end * */
      time_t t; //create a temporary time variable so we can set the time and read the time from the RTC
     t=RTC.get();//Gets the current time of the RTC
-    RTC.setAlarm(ALM1_MATCH_MINUTES , 0, minute(t)+time_interval, 0, 0);// Setting alarm 1 to go off 15 minutes from now
+    RTC.setAlarm(ALM1_MATCH_MINUTES , 0, minute(t)+time_interval, 0, 0);// Setting alarm 1 to go off every 5 minutes
     // clear the alarm flag
     RTC.alarm(ALARM_1);
     // configure the INT/SQW pin for "interrupt" operation (disable square wave output)
@@ -125,7 +125,14 @@ void Going_To_Sleep(){
   radio.write(&data, sizeof(MyData));
   t=RTC.get();
   //Set New Alarm
-  RTC.setAlarm(ALM1_MATCH_MINUTES , 0, minute(t)+time_interval, 0, 0);
+  sum_time = minute(t)+time_interval;
+  if (sum_time >= 59) { //Checking if one minute has passed if it has reset seconds
+  sum_time = sum_time - 60;
+  }
+  else {
+  sum_time = sum_time;
+  }
+  RTC.setAlarm(ALM1_MATCH_MINUTES , 0, sum_time, 0, 0);
   // clear the alarm flag
   RTC.alarm(ALARM_1);
   }
