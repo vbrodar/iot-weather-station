@@ -4,11 +4,21 @@ import serial
 from datetime import datetime
 import time
 from time import sleep
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(10,GPIO.IN,pull_up_down =GPIO.PUD_DOWN)
 
 
 db = mysql.connector.connect(host="localhost",user="root",passwd="",db="iotweatherstation")
 cursor = db.cursor()
 
+def pushbuttonCallback(channel):
+    display.lcd_display_string('Arduino:', 1)
+    display.lcd_display_string('T:'+ t1 + ' H:' + h1 , 2)
+    sleep(1)
+
+GPIO.add_event_detect(10,GPIO.RISING,callback=pushbuttonCallback)
 if __name__ == '__main__':
     ser = serial.Serial('/dev/ttyUSB0',9600,timeout=10)
     ser.flush()
@@ -20,7 +30,6 @@ if __name__ == '__main__':
 
     while True:
 
-        display.lcd_clear()
         if ser.in_waiting > 0:
             #Getting current time
             now = datetime.now()
@@ -40,14 +49,6 @@ if __name__ == '__main__':
             t2,h2 = str_int2[:2],str_int2[2:]
             print("RPI: T:" +t2+ " H:"+ h2)
             print("\n")
-            display.lcd_display_string('Arduino:', 1)
-            display.lcd_display_string('T:'+ t1 + ' H:' + h1 , 2)
-            sleep(5)
-            display.lcd_clear()
-            display.lcd_display_string('RPI:', 1)
-            display.lcd_display_string('T:'+ t2 + ' H:' + h2 , 2)
-            sleep(5)
-
             #SQL insert part
             arduinoInsert = ("INSERT INTO TempAndHumLog"
                           "(timestamp,temperature,humidity,sensor)"
@@ -56,7 +57,7 @@ if __name__ == '__main__':
             arduinoData = (dt_string,t1,h1,'Arduino')
             cursor.execute(arduinoInsert,arduinoData)
             db.commit()
-            sleep(5)
+            #sleep(5)
 
             rpiInsert = ("INSERT INTO TempAndHumLog"
                           "(timestamp,temperature,humidity,sensor)"
@@ -65,13 +66,9 @@ if __name__ == '__main__':
             rpiData = (dt_string,t2,h2,'RPI')
             cursor.execute(rpiInsert,rpiData)
             db.commit()
-            sleep(5)           
-            
-            
-            
-
-            
-            
-
-
-    
+            #sleep(5)
+            #Menu with pushbutton
+            if(GPIO.input(10) == 0):
+                display.lcd_clear()
+                display.lcd_display_string('RPI:', 1)
+                display.lcd_display_string('T:'+ t2 + ' H:' + h2 , 2)

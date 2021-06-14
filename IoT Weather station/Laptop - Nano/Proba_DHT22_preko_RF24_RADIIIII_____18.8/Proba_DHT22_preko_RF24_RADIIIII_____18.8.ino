@@ -39,8 +39,8 @@ void setup()
   //Adding rtc functionality
 
   rtc.setDOW(FRIDAY);     // Set Day-of-Week to SUNDAY
-  rtc.setTime(14, 55, 0);     // Set the time to 12:00:00 (24hr format)
-  rtc.setDate(8, 6, 2021);   // Set the date to January 1st, 2014
+  rtc.setTime(13, 00, 0);     // Set the time to 12:00:00 (24hr format)
+  rtc.setDate(14, 6, 2021);   // Set the date to January 1st, 2014
 
   //initialize the alarms to known values, clear alarm flags, clear the alarm interrupt flags
   RTC.setAlarm(ALM1_MATCH_DATE, 0, 0, 1, 0);
